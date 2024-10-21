@@ -1,0 +1,149 @@
+
+1.Profit Margin (%) = DIVIDE([List Price] - [Cost Price], [List Price]) * 100
+2.Profit = [Sales_Price] - [cost price]
+3.Sales_Price = [List Price]-[Discount]
+4.Discount = [List Price] * [Discount Percent] * .01
+
+5.Profit Margin Category = 
+   SWITCH(
+    TRUE(),
+    [Profit Margin] >= 25, "High",
+    [Profit Margin] >= 15 && [Profit Margin] < 25, "Medium",
+    [Profit Margin] < 15, "Low",
+    "No Data"
+)
+
+6.Profit_Category = 
+  VAR ProfitAmount = [Sales_Price] - [cost price]
+  RETURN
+   IF(
+    ISBLANK([Sales_Price]) || ISBLANK([cost price]), 
+    "No Data",
+    IF(
+        ProfitAmount < 0, 
+        "Loss",
+        IF(
+            ProfitAmount >= 0 && ProfitAmount < 100, 
+            "Low Profit",
+            IF(
+                ProfitAmount >= 100 && ProfitAmount < 500, 
+                "Medium Profit",
+                "High Profit"
+            )
+        )
+    )
+)
+*************Sales and Profit Analysis Dashboard_Meaures******************************************************************************
+7.Average Discount = AVERAGE('orders_Project'[Discount Percent])
+8.Total Sales = SUMX('orders_Project', 'orders_Project'[Sales_Price] * 'orders_Project'[Quantity])
+9.Total_Profit = SUMX('orders_Project', ('orders_Project'[Sales_Price] - 'orders_Project'[cost price]) * 'orders_Project'[Quantity])
+10.Best-Selling Category = 
+    VAR BestCategory =
+    TOPN(
+        1, 
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[Category],
+            "TotalSales", SUMX('orders_Project', 'orders_Project'[Sales_Price] * 'orders_Project'[Quantity])
+        ),
+        [TotalSales],
+        DESC
+    )
+RETURN
+    MAXX(BestCategory, 'orders_Project'[Category])
+11.Best-Selling Category per State = 
+   VAR BestCategory =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[State],
+            'orders_Project'[Category],
+            "TotalSales", SUMX('orders_Project', 'orders_Project'[Sales_Price] * 'orders_Project'[Quantity])
+        ),
+        [TotalSales],
+        DESC
+    )
+RETURN
+    MAXX(BestCategory, 'orders_Project'[Category])
+
+
+12.Highest Profitable City = 
+VAR HighestCity =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[City],
+            "TotalProfit", SUMX('orders_Project', ('orders_Project'[Sales_Price] - 'orders_Project'[cost price]) * 'orders_Project'[Quantity])
+        ),
+        [TotalProfit],
+        DESC
+    )
+RETURN
+    MAXX(HighestCity, 'orders_Project'[City])
+13.Lowest Profitable City = 
+   VAR LowestCity =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[City],
+            "TotalProfit", SUMX('orders_Project', ('orders_Project'[Sales_Price] - 'orders_Project'[cost price]) * 'orders_Project'[Quantity])
+        ),
+        [TotalProfit],
+        ASC
+    )
+RETURN
+    MAXX(LowestCity, 'orders_Project'[City])
+14.Worst-Selling Category per State = 
+  VAR WorstCategory =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[State],
+            'orders_Project'[Category],
+            "TotalSales", SUMX('orders_Project', 'orders_Project'[Sales_Price] * 'orders_Project'[Quantity])
+        ),
+        [TotalSales],
+        ASC
+    )
+RETURN
+    MAXX(WorstCategory, 'orders_Project'[Category])
+15.Highest Profitable State = 
+   VAR HighestState =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[State],
+            "TotalProfit", SUMX('orders_Project', ('orders_Project'[Sales_Price] - 'orders_Project'[cost price]) * 'orders_Project'[Quantity])
+        ),
+        [TotalProfit],
+        DESC
+    )
+RETURN
+    MAXX(HighestState, 'orders_Project'[State])
+16.Lowest Profitable State = 
+VAR LowestState =
+    TOPN(
+        1,
+        SUMMARIZE(
+            'orders_Project',
+            'orders_Project'[State],
+            "TotalProfit", SUMX('orders_Project', ('orders_Project'[Sales_Price] - 'orders_Project'[cost price]) * 'orders_Project'[Quantity])
+        ),
+        [TotalProfit],
+        ASC
+    )
+RETURN
+    MAXX(LowestState, 'orders_Project'[State])
+
+
+
+
+
+
+
+
